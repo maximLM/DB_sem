@@ -82,3 +82,45 @@ CREATE TABLE post_likes (
 	FOREIGN KEY (user_id) REFERENCES users (id),
 	created DATE
 );
+
+CREATE OR REPLACE FUNCTION set_current_date() RETURNS trigger AS 
+$$
+    BEGIN
+	IF NEW.created is NULL THEN
+		NEW.created = current_date;
+	END IF;
+	RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER created_date BEFORE INSERT ON users
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE TRIGGER created_date BEFORE INSERT ON posts
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE TRIGGER created_date BEFORE INSERT ON tags
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE TRIGGER created_date BEFORE INSERT ON comments
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE TRIGGER created_date BEFORE INSERT ON post_likes
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE TRIGGER created_date BEFORE INSERT ON photo
+FOR EACH ROW EXECUTE PROCEDURE set_current_date();
+
+CREATE OR REPLACE FUNCTION like_trigger() RETURNS trigger AS 
+$$
+    BEGIN
+	UPDATE posts SET likes = (
+	(SELECT likes FROM posts WHERE id = NEW.post_id) + 1
+	)
+	WHERE id = NEW.post_id;
+	RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS like_trigger ON post_likes;
+CREATE TRIGGER like_trigger BEFORE INSERT ON post_likes
+FOR EACH ROW EXECUTE PROCEDURE like_trigger();
