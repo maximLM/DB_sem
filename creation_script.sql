@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS styles;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS photo;
+DROP TABLE IF EXISTS user_edit;
 
 CREATE TABLE photo (
 	id SERIAL PRIMARY KEY,
@@ -124,3 +125,37 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS like_trigger ON post_likes;
 CREATE TRIGGER like_trigger BEFORE INSERT ON post_likes
 FOR EACH ROW EXECUTE PROCEDURE like_trigger();
+
+
+CREATE TABLE user_edit (
+	operation CHAR(1) NOT NULL,
+	time TIMESTAMP NOT NULL,
+	username_pg TEXT NOT NULL,
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	login VARCHAR(50) NOT NULL,
+	password VARCHAR(50) NOT NULL,
+	photo_id INTEGER,
+	created DATE
+);
+
+CREATE OR REPLACE FUNCTION process_user_edit() RETURNS TRIGGER AS 
+$$
+BEGIN
+	IF (TG_OP = 'DELETE') THEN
+		INSERT INTO user_edit SELECT 'D', now(), user, OLD.*;
+		RETURN OLD;
+	ELSIF (TG_OP = 'UPDATE') THEN
+		INSERT INTO user_edit SELECT 'U', now(), user, NEW.*;
+		RETURN NEW;
+	ELSIF (TG_OP = 'INSERT') THEN
+		INSERT INTO user_edit SELECT 'I', now(), user, NEW.*;
+		RETURN NEW;
+	END IF;
+	RETURN NULL; 
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER user_edit
+AFTER INSERT OR UPDATE OR DELETE ON users
+FOR EACH ROW EXECUTE PROCEDURE process_user_edit();
