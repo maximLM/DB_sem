@@ -1,4 +1,6 @@
-﻿SELECT TP.tag_id, TP.text, COUNT(*) AS cnt FROM
+﻿CREATE OR REPLACE VIEW tags_last_month_sorted_by_likes AS
+
+SELECT TP.tag_id, TP.text, COUNT(*) AS cnt FROM
 	(SELECT T.tag_id, T.post_id, T.text FROM
 	(tags JOIN post_tag ON tags.id = post_tag.tag_id) AS T
 	JOIN posts ON T.post_id = posts.id) AS TP

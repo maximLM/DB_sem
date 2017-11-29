@@ -1,4 +1,5 @@
-﻿WITH CNT AS (
+﻿CREATE OR REPLACE VIEW most_liked_tags_by_month AS
+WITH CNT AS (
 	SELECT CNT.user_id, CNT.login, COUNT(*) AS cnt, extract(year from CNT.created) AS year, extract (month from CNT.created) AS month FROM
 	(SELECT PU.user_id, PU.login, post_likes.created FROM
 		(
