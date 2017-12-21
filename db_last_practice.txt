@@ -30,6 +30,18 @@ k) A := PI model (pc)
 	B := PI maker, model (product JOIN PI model(pc))
 	C := B
 	D := B
+	E := B
 	ans := PI maker ( SGM B.maker = C.maker & C.maker = D.maker
 						& B.model != C.model & B.model != D.model
 						& C.model != D.model ( B x C x D))
+			- 
+			PI maker ( SGM B.maker = C.maker &
+						C.maker = D.maker & 
+						C.maker = E.maker & 
+						B.model != C.model & 
+						B.model != D.model & 
+						C.model != D.model &
+						B.model != E.model &
+						C.model != E.model &
+						D.model != E.model
+						( B x C x D x E))
