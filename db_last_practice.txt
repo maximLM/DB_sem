@@ -1,0 +1,35 @@
+product(maker, model, type)
+pc(model, speed, ram, hd, price)
+laptop(model, speed, ram, hd, screen, price)
+printer(model, color, type, price)
+
+g) A := PI model, speed, ram (pc)
+	B := A
+	ans := PI A.model, B.model (
+		SGM A.model > B.model & A.ram = B.ram & A.speed = B.speed (A x B)
+	)
+
+h) A := PI model ( SGM speed > 2.8 (pc) ) U PI model ( SGM speed > 2.8 (laptop))
+	B := product JOIN A
+	C := B
+	ans := PI maker ( SGM B.maker = C.maker & B.model != C.model (B x C) )
+
+i) A := PI model, speed(pc) U PI model, speed(laptop)
+	B := A
+	C := PI model - PI model ( SGM A.speed < B.speed (A x B) )
+	ans = PI maker (product JOIN C)
+	
+j) A := PI model, speed (pc) 
+	B := PI maker, speed (product JOIN PI model, speed (pc))
+	C := B
+	D := B
+	ans := PI maker ( SGM B.maker = C.maker & C.maker = D.maker
+						& B.speed != C.speed & B.speed != D.speed
+						& C.speed != D.speed ( B x C x D))
+k) A := PI model (pc) 
+	B := PI maker, model (product JOIN PI model(pc))
+	C := B
+	D := B
+	ans := PI maker ( SGM B.maker = C.maker & C.maker = D.maker
+						& B.model != C.model & B.model != D.model
+						& C.model != D.model ( B x C x D))
